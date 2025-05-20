@@ -18,19 +18,18 @@ public class QuestionController {
 
 
     @GetMapping("/all")
-    public List<?> allQuestion()
+    public ResponseEntity<?> allQuestion()
     {
         return questionService.getAllQuestions();
     }
 
     @PostMapping("/load")
-    public String load( @Valid @RequestBody List<Question> questions)
+    public ResponseEntity<String> load(@Valid @RequestBody List<Question> questions)
     {
-        questionService.load(questions);
-        return "Successful";
+        return questionService.load(questions);
     }
     @GetMapping("category/{category}")
-    public List<Question> getQuestionByCategory(@PathVariable String category)
+    public ResponseEntity<?> getQuestionByCategory(@PathVariable String category)
     {
         return questionService.getQuestionsByCategory(category);
     }

@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.io.EOFException;
 import java.util.List;
 
 @Service
@@ -15,25 +16,49 @@ public class QuestionService {
     @Autowired
     private QuestionRepo repo;
 
-    public List<Question> getAllQuestions()
+    public ResponseEntity<?> getAllQuestions()
     {
-        return repo.findAll();
+        List<Question> questions = repo.findAll();
+
+       try
+        {
+            return new ResponseEntity<>(questions,HttpStatus.OK);
+        }
+        catch (Exception e)
+        {
+            return new ResponseEntity<>("NOT FOUND, Check URL",HttpStatus.BAD_REQUEST);
+        }
     }
 
-    public void load(List<Question> questions)
+    public ResponseEntity<String> load(List<Question> questions)
     {
-        repo.saveAll(questions);
+        try {
+            repo.saveAll(questions);
+            return new ResponseEntity<>("Successful",HttpStatus.OK);
+        }
+        catch (Exception e) {
+            return new ResponseEntity<>("Failed to Load",HttpStatus.BAD_REQUEST);
+        }
+
     }
 
-    public List<Question> getQuestionsByCategory(String category) {
+    public ResponseEntity<?> getQuestionsByCategory(String category) {
         System.out.println(category);
-        return repo.findByCategory(category);
+
+        List<Question> questions = repo.findByCategory(category);
+
+        if(questions == null || questions.isEmpty())
+        {
+            return new ResponseEntity<>("Not Found "+category,HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(questions,HttpStatus.OK);
+
     }
 
     public ResponseEntity<String> addQuestion(Question question) {
         try {
             repo.save(question);
-            return ResponseEntity.status(HttpStatus.OK).body("Successful");
+            return new ResponseEntity<>("Successful",HttpStatus.CREATED);
         }
         catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to Add");
